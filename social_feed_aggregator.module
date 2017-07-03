@@ -67,6 +67,19 @@ function social_feed_aggregator_cron() {
       foreach ($data as $item) {
         $instagram_count += social_feed_aggregator_create_node($item);
       }
+
+      // Get data from the second instagram account.
+      $feed->instagram->setCredentials([
+        'client_id' => $config->get('instagram.client_id_2'),
+        'access_token' => $config->get('instagram.access_token_2'),
+      ]);
+
+      // Get all recent posts instagram user
+      $data = $feed->instagram->getFeed($config->get('instagram.username_2'));
+
+      foreach ($data as $item) {
+        $instagram_count += social_feed_aggregator_create_node($item);
+      }
     }
 
     // log job
@@ -125,7 +138,8 @@ function social_feed_aggregator_create_node($item)
     $node = Node::create([
       'type'                => 'sfa_social_post',
       'title'               => ucwords($item->service).' Post ID: '.$item->id,
-      'field_sfa_platform'  => ucwords($item->service),
+      'field_sfa_platform'  => strtolower($item->service),
+      'field_sfa_handle'    => empty($item->user->handle)? '' : ucwords($item->user->handle),
       'field_sfa_id'        => $item->id,
       'field_sfa_post'      => ['value' => social_feed_aggregator_linkify(html_entity_decode($item->text)), 'format' => 'basic_html'],
       'field_sfa_link'      => $item->link,

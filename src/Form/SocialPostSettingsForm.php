@@ -197,6 +197,26 @@ class SocialPostSettingsForm extends ConfigFormBase {
       '#required' => $config->get('instagram.enabled') ? true : false,
     );
 
+    $form['instagram']['instagram_username_2'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Username'),
+      '#default_value' => $config->get('instagram.username_2')
+    );
+
+    $form['instagram']['instagram_client_id_2'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Client ID'),
+      '#default_value' => $config->get('instagram.client_id_2'),
+      '#required' => $config->get('instagram.instagram_username_2') ? true : false,
+    );
+
+    $form['instagram']['instagram_access_token_2'] = array(
+      '#type' => 'textfield',
+      '#title' => $this->t('Access Token'),
+      '#default_value' => $config->get('instagram.access_token_2'),
+      '#required' => $config->get('instagram.instagram_username_2') ? true : false,
+    );
+
     if ($this->currentUser->hasPermission('administer site configuration')) {
       $form['cron_run'] = [
         '#type' => 'details',
@@ -258,8 +278,14 @@ class SocialPostSettingsForm extends ConfigFormBase {
 
     // check user has provided all instagram details
     if(!empty($values['instagram_enabled'])) {
+
       if(empty($values['instagram_username']) || empty($values['instagram_client_id']) || empty($values['instagram_access_token']))
       $form_state->setErrorByName('instagram_enabled', $this->t('Please provide all Instagram details.'));
+
+      if(!empty($values['instagram_username_2'])) {
+        if(empty($values['instagram_client_id_2']) || empty($values['instagram_access_token_2']))
+        $form_state->setErrorByName('instagram_enabled', $this->t('Please provide all Instagram details.'));
+      }
     }
 
     parent::validateForm($form, $form_state);
@@ -301,6 +327,9 @@ class SocialPostSettingsForm extends ConfigFormBase {
       ->set('instagram.username', $form_state->getValue('instagram_username'))
       ->set('instagram.client_id', $form_state->getValue('instagram_client_id'))
       ->set('instagram.access_token', $form_state->getValue('instagram_access_token'))
+      ->set('instagram.username_2', $form_state->getValue('instagram_username_2'))
+      ->set('instagram.client_id_2', $form_state->getValue('instagram_client_id_2'))
+      ->set('instagram.access_token_2', $form_state->getValue('instagram_access_token_2'))
       ->save();
 
     parent::submitForm($form, $form_state);
